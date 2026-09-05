@@ -18,20 +18,13 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(
     cors({
-        origin: (origin, callback) => {
-            if (!origin) return callback(null, true);
-
-            if (origin.includes("localhost") || origin.endsWith(".vercel.app")) {
-                return callback(null, true);
-            }
-
-            return callback(new Error("Not allowed by CORS"));
-        },
-        methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-        allowedHeaders: ["Content-Type", "Authorization"],
+        origin: true,
         credentials: true,
+        methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
     }),
 );
+app.options("*", cors());
 app.use(fileUpload());
 app.use(express.json());
 app.use(express.static("uploads"));
