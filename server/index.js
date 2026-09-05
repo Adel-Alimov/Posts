@@ -18,7 +18,15 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(
     cors({
-        origin: ["https://posts-omega-six.vercel.app", "http://localhost:3000"],
+        origin: (origin, callback) => {
+            if (!origin) return callback(null, true);
+
+            if (origin.includes("localhost") || origin.endsWith(".vercel.app")) {
+                return callback(null, true);
+            }
+
+            return callback(new Error("Not allowed by CORS"));
+        },
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
         credentials: true,
