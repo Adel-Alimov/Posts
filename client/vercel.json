@@ -7,6 +7,10 @@
         {
             "source": "/uploads/:path*",
             "destination": "https://posts-z727.onrender.com/:path*"
+        },
+        {
+            "source": "/(.*)",
+            "destination": "/index.html"
         }
     ]
 }
