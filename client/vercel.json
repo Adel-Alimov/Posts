@@ -1,0 +1,8 @@
+{
+    "rewrites": [
+        {
+            "source": "/api/:path*",
+            "destination": "https://posts-z727.onrender.com/api/:path*"
+        }
+    ]
+}
