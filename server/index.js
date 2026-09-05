@@ -24,7 +24,6 @@ app.use(
         allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
     }),
 );
-app.options("*", cors());
 app.use(fileUpload());
 app.use(express.json());
 app.use(express.static("uploads"));
