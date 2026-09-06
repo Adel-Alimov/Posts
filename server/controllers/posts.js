@@ -14,10 +14,21 @@ cloudinary.config({
 const uploadToCloudinary = (file) => {
     return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream({ folder: "posts" }, (error, result) => {
-            if (error) return reject(error);
+            if (error) {
+                console.error("Cloudinary error:", error);
+                return reject(error);
+            }
             resolve(result.secure_url);
         });
-        stream.end(file.data);
+        if (file.data && file.data.length > 0) {
+            stream.end(file.data);
+        } else if (file.tempFilePath) {
+            import("fs").then((fs) => {
+                fs.createReadStream(file.tempFilePath).pipe(stream);
+            });
+        } else {
+            reject(new Error("Файл не содержит данных для загрузки"));
+        }
     });
 };
 

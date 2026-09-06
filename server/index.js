@@ -28,14 +28,6 @@ app.use(fileUpload());
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
-// Routes
-app.use("/api/auth", authRoute);
-app.use("/api/posts", postRoute);
-app.use("/api/comments", commentRoute);
-app.use(fileUpload());
-app.use(express.json());
-app.use(express.static("uploads"));
-
 //Routes
 app.use("/api/auth", authRoute);
 app.use("/api/posts", postRoute);
