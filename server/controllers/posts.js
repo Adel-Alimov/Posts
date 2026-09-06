@@ -3,6 +3,23 @@ import Post from "../models/Post.js";
 import User from "../models/User.js";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const uploadToCloudinary = (file) => {
+    return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream({ folder: "posts" }, (error, result) => {
+            if (error) return reject(error);
+            resolve(result.secure_url);
+        });
+        stream.end(file.data);
+    });
+};
 
 // Create Post
 export const createPost = async (req, res) => {
@@ -10,41 +27,30 @@ export const createPost = async (req, res) => {
         const { title, text } = req.body;
         const user = await User.findById(req.userId);
 
-        if (req.files) {
-            let fileName = Date.now().toString() + req.files.image.name;
-            const __dirname = dirname(fileURLToPath(import.meta.url));
-            req.files.image.mv(path.join(__dirname, "..", "uploads", fileName));
+        let imageUrl = "";
 
-            const newPostWithImage = new Post({
-                username: user.username,
-                title,
-                text,
-                imgUrl: fileName,
-                author: req.userId,
-            });
-            await newPostWithImage.save();
-            await User.findByIdAndUpdate(req.userId, {
-                $push: { posts: newPostWithImage },
-            });
-
-            return res.json(newPostWithImage);
+        if (req.files && req.files.image) {
+            imageUrl = await uploadToCloudinary(req.files.image);
         }
 
-        const newPostWithoutImage = new Post({
+        const newPost = new Post({
             username: user.username,
             title,
             text,
-            imgUrl: "",
+            imgUrl: imageUrl,
             author: req.userId,
         });
-        await newPostWithoutImage.save();
+
+        await newPost.save();
+
         await User.findByIdAndUpdate(req.userId, {
-            $push: { posts: newPostWithoutImage },
+            $push: { posts: newPost },
         });
 
-        return res.json(newPostWithoutImage);
+        return res.json(newPost);
     } catch (error) {
-        res.json({ message: "Что то пошло не так" });
+        console.error(error);
+        res.status(500).json({ message: "Что-то пошло не так" });
     }
 };
 
@@ -113,22 +119,22 @@ export const updatePost = async (req, res) => {
         const { title, text, id } = req.body;
         const post = await Post.findById(id);
 
-        if (req.files) {
-            let fileName = Date.now().toString() + req.files.image.name;
-            const __dirname = dirname(fileURLToPath(import.meta.url));
-            req.files.image.mv(path.join(__dirname, "..", "uploads", fileName));
-            post.imgUrl = fileName || "";
+        if (!post) {
+            return res.status(404).json({ message: "Пост не найден" });
+        }
+
+        if (req.files && req.files.image) {
+            post.imgUrl = await uploadToCloudinary(req.files.image);
         }
 
         post.title = title;
         post.text = text;
         await post.save();
 
-        res.json(post);
-
-        res.json({ message: "Пост изменен" });
+        return res.json(post);
     } catch (error) {
-        res.json({ message: "Что то пошло не так" });
+        console.error(error);
+        res.status(500).json({ message: "Что-то пошло не так" });
     }
 };
 
