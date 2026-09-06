@@ -1,15 +1,9 @@
 import Comment from "../models/Comment.js";
 import Post from "../models/Post.js";
 import User from "../models/User.js";
-import path, { dirname } from "path";
-import { fileURLToPath } from "url";
 import { v2 as cloudinary } from "cloudinary";
 
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+cloudinary.config();
 
 const uploadToCloudinary = (file) => {
     return new Promise((resolve, reject) => {
