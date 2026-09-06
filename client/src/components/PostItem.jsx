@@ -13,7 +13,11 @@ export const PostItem = ({ post }) => {
                 <div className={post.imgUrl ? "flex rounded-sm h-80" : "flex rounded-sm"}>
                     {post.imgUrl && (
                         <img
-                            src={`/uploads/${post.imgUrl}`}
+                            src={
+                                post.imgUrl.startsWith("http")
+                                    ? post.imgUrl
+                                    : `/uploads/${post.imgUrl}`
+                            }
                             alt="img"
                             className="object-cover w-full"
                         />
