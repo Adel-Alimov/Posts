@@ -19,7 +19,7 @@ export const PostItem = ({ post }) => {
                                     : `/uploads/${post.imgUrl}`
                             }
                             alt="img"
-                            className="object-cover w-full"
+                            className="object-fill w-full"
                         />
                     )}
                 </div>
